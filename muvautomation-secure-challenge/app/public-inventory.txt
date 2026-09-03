@@ -1,0 +1,10 @@
+MuvAutomation - Inventario público de demostración (datos ficticios, uso académico)
+Generado para: FDSI Laboratorio 3
+Ambiente: LAB
+
+ASSET_ID       TYPE     STATUS   NOTES
+WEB-LAB-01     Web      active   Nginx front-end estático de demostración
+API-LAB-01     API      active   Endpoint ficticio, sin datos reales
+DB-LAB-01      Database inactive Marcador de posición, no contiene datos
+
+Nota: Este archivo no contiene credenciales, correos reales ni direcciones internas reales.

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MuvAutomation Lab</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --card:#1e293b;
+      --border:#2d3b52;
+      --text:#e5e9f0;
+      --muted:#93a1b8;
+      --accent:#38bdf8;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top, #16213e 0%, var(--bg) 60%);
+      color:var(--text);
+      font-family:"Segoe UI", Arial, sans-serif;
+      padding:32px 16px;
+    }
+    .card{
+      width:100%;
+      max-width:560px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:32px 36px;
+      box-shadow:0 20px 50px rgba(0,0,0,.35);
+    }
+    .badge{
+      display:inline-block;
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:#0f172a;
+      background:var(--accent);
+      padding:4px 10px;
+      border-radius:999px;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:26px;
+    }
+    .subtitle{
+      color:var(--muted);
+      margin:0 0 24px;
+      font-size:14px;
+    }
+    dl{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:8px 16px;
+      margin:0 0 28px;
+      font-size:14px;
+    }
+    dt{color:var(--muted);}
+    dd{margin:0; font-weight:600;}
+    a.button{
+      display:inline-block;
+      color:#0f172a;
+      background:var(--accent);
+      text-decoration:none;
+      font-weight:600;
+      font-size:14px;
+      padding:10px 18px;
+      border-radius:8px;
+      transition:opacity .15s ease;
+    }
+    a.button:hover{opacity:.85;}
+    footer{
+      margin-top:24px;
+      padding-top:16px;
+      border-top:1px solid var(--border);
+      font-size:12px;
+      color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <span class="badge">Environment: LAB</span>
+    <h1>MuvAutomation Asset Portal</h1>
+    <p class="subtitle">Portal de demostración con datos ficticios — Secure Product Challenge, FDSI.</p>
+    <dl>
+      <dt>Owner</dt><dd>Blue Team</dd>
+      <dt>Protocolo</dt><dd>HTTP (sin TLS, sin autenticación)</dd>
+      <dt>Propósito</dt><dd>Laboratorio 3 — reconocimiento y hardening básico</dd>
+    </dl>
+    <a class="button" href="/public-inventory.txt">Ver inventario público de demostración</a>
+    <footer>Este sitio no contiene datos reales, credenciales ni información sensible.</footer>
+  </main>
+</body>
+</html>
