@@ -1,0 +1,250 @@
+HTTP/1.1 200 OK
+Server: nginx/1.28.3 (Ubuntu)
+Date: Wed, 16 Sep 2026 21:35:10 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 7257
+Last-Modified: Wed, 16 Sep 2026 19:09:24 GMT
+Connection: keep-alive
+ETag: "6aaae964-1c59"
+Accept-Ranges: bytes
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrowdStrike Incident Hub — Lab 3</title>
+  <style>
+    :root{
+      --bg:#0b1120;
+      --panel:#0f172a;
+      --card:#141d33;
+      --card-alt:#111a2e;
+      --border:#26314d;
+      --text:#e7ebf5;
+      --muted:#8b98b4;
+      --accent:#ff6b4a;
+      --accent-soft:rgba(255,107,74,.12);
+      --ok:#34d399;
+      --warn:#fbbf24;
+      --crit:#f87171;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(1100px 480px at 10% -10%, rgba(255,107,74,.10) 0%, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, rgba(56,189,248,.08) 0%, transparent 55%),
+        var(--bg);
+      color:var(--text);
+      font-family:"Segoe UI", Arial, sans-serif;
+      padding:40px 16px 64px;
+    }
+    main{
+      width:100%;
+      max-width:860px;
+      margin:0 auto;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:28px;
+    }
+    .logo{
+      width:36px; height:36px;
+      border-radius:9px;
+      background:linear-gradient(135deg, var(--accent), #b3411f);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:16px; color:#0b1120;
+      flex-shrink:0;
+    }
+    .brand{
+      font-size:15px;
+      font-weight:600;
+      letter-spacing:.01em;
+    }
+    .brand small{
+      display:block;
+      color:var(--muted);
+      font-weight:400;
+      font-size:12px;
+    }
+    .badges{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+    .badge{
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      background:var(--card-alt);
+      white-space:nowrap;
+    }
+    .badge.env{ color:var(--accent); border-color:rgba(255,107,74,.35); background:var(--accent-soft); }
+
+    .hero{ margin-bottom:28px; }
+    h1{ margin:0 0 8px; font-size:28px; line-height:1.2; }
+    .subtitle{ color:var(--muted); margin:0; font-size:14.5px; max-width:60ch; }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:24px 26px;
+      margin-bottom:20px;
+      box-shadow:0 16px 40px rgba(0,0,0,.28);
+    }
+    .card h2{
+      margin:0 0 4px;
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:var(--muted);
+    }
+    .card p.hint{ margin:0 0 16px; font-size:13px; color:var(--muted); }
+
+    table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+    thead th{
+      text-align:left;
+      color:var(--muted);
+      font-weight:600;
+      font-size:11.5px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      padding:0 10px 10px;
+      border-bottom:1px solid var(--border);
+    }
+    tbody td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--border);
+      vertical-align:middle;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+    .mono{ font-family:"Cascadia Code","Consolas",monospace; color:var(--text); }
+    .sev{
+      display:inline-block;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.03em;
+      padding:3px 9px;
+      border-radius:999px;
+    }
+    .sev.critical{ color:var(--crit); background:rgba(248,113,113,.12); }
+    .sev.high{ color:var(--accent); background:var(--accent-soft); }
+    .sev.medium{ color:var(--warn); background:rgba(251,191,36,.12); }
+    .status{ color:var(--muted); }
+    .status.new{ color:var(--warn); }
+    .status.closed{ color:var(--ok); }
+
+    dl{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:9px 18px;
+      margin:0;
+      font-size:13.5px;
+    }
+    dt{ color:var(--muted); }
+    dd{ margin:0; font-weight:600; }
+
+    a.link{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:600;
+      font-size:13.5px;
+    }
+    a.link:hover{ text-decoration:underline; }
+
+    footer{
+      margin-top:8px;
+      padding-top:18px;
+      border-top:1px solid var(--border);
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    footer strong{ color:var(--text); }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div class="logo">CS</div>
+      <div class="brand">CrowdStrike Incident Hub
+        <small>Prototipo de automatización de alertas — Secure Product Challenge, FDSI</small>
+      </div>
+      <div class="badges">
+        <span class="badge env">Environment: LAB</span>
+        <span class="badge">HTTP · sin TLS</span>
+        <span class="badge">Sin autenticación</span>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1>Bandeja de alertas (datos ficticios)</h1>
+      <p class="subtitle">
+        Prototipo de recepción y consulta de alertas simuladas de CrowdStrike Falcon.
+        No usa datos reales ni se integra con CrowdStrike. Publicado deliberadamente por
+        HTTP y sin autenticación para el Laboratorio 3 (reconocimiento, exposición de
+        datos y hardening básico).
+      </p>
+    </div>
+
+    <section class="card">
+      <h2>Alertas registradas</h2>
+      <p class="hint">Vista de solo lectura — enriquecimiento y escalamiento manual, sin control de acceso.</p>
+      <table>
+        <thead>
+          <tr><th>Alert ID</th><th>Host</th><th>Severidad</th><th>Táctica</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">ALT-LAB-1001</td>
+            <td class="mono">WEB-LAB-01</td>
+            <td><span class="sev critical">Critical</span></td>
+            <td>Command &amp; Control (simulado)</td>
+            <td class="status new">Nueva</td>
+          </tr>
+          <tr>
+            <td class="mono">ALT-LAB-1002</td>
+            <td class="mono">API-LAB-01</td>
+            <td><span class="sev high">High</span></td>
+            <td>Credential Access (simulado)</td>
+            <td class="status">En triage</td>
+          </tr>
+          <tr>
+            <td class="mono">ALT-LAB-1003</td>
+            <td class="mono">DB-LAB-01</td>
+            <td><span class="sev medium">Medium</span></td>
+            <td>Discovery (simulado)</td>
+            <td class="status closed">Cerrada</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Metadatos del prototipo</h2>
+      <dl>
+        <dt>Owner</dt><dd>Blue Team</dd>
+        <dt>Protocolo</dt><dd>HTTP (sin TLS, sin autenticación)</dd>
+        <dt>Propósito</dt><dd>Laboratorio 3 — reconocimiento y hardening básico</dd>
+        <dt>Fuente</dt><dd>Alertas ficticias, sin integración real con CrowdStrike</dd>
+      </dl>
+    </section>
+
+    <p><a class="link" href="/public-inventory.txt">&rarr; Ver inventario público de activos y alertas (texto plano)</a></p>
+
+    <footer>
+      Este sitio no contiene datos reales, credenciales ni información sensible.
+      <strong>Autenticación e identidad</strong> se implementan en el Laboratorio 4 junto con HTTPS.
+    </footer>
+  </main>
+</body>
+</html>
