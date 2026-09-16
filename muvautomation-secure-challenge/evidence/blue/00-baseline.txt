@@ -1,0 +1,28 @@
+== hostnamectl ==
+  Static hostname: lab3ubuntu
+        Icon name: computer-vm
+          Chassis: vm 🖴
+Chassis Asset Tag: No Asset Tag
+       Machine ID: ada67db21d094dd9aeea9c997046c2b6
+          Boot ID: 074d1c80eb3d4d76a4cafbd6c53cb8c2
+     AF_VSOCK CID: 1408746027
+   Virtualization: vmware
+ Operating System: Ubuntu 26.04.1 LTS
+           Kernel: Linux 7.0.0-30-generic
+     Architecture: x86-64
+  Hardware Vendor: VMware, Inc.
+   Hardware Model: VMware Virtual Platform
+ Hardware Version: None
+ Firmware Version: 6.00
+    Firmware Date: Thu 2020-11-12
+     Firmware Age: 5y 10month 4d
+
+== ip -br address ==
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+ens33            UP             192.168.92.132/24 metric 100 fe80::20c:29ff:fef7:c22b/64 
+
+== uname -a ==
+Linux lab3ubuntu 7.0.0-30-generic #30-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul 31 18:22:54 UTC 2026 x86_64 GNU/Linux
+
+== timestamp UTC ==
+2026-09-16T19:08:08Z

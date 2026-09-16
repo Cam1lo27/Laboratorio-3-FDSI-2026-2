@@ -1,0 +1,19 @@
+== IPs con 5+ respuestas 404 ==
+      1 192.168.92.134 [16/Sep/2026:21:52:31 /favicon.ico 404 "Mozilla/5.0
+      1 192.168.92.134 [16/Sep/2026:21:35:10 /sdk 404 "Mozilla/5.0
+      1 192.168.92.134 [16/Sep/2026:21:35:10 /nmaplowercheck1789594510 404 "Mozilla/5.0
+      1 192.168.92.134 [16/Sep/2026:21:35:10 /evox/about 404 "Mozilla/5.0
+      1 192.168.92.134 [16/Sep/2026:21:35:10 /HNAP1 404 "Mozilla/5.0
+
+== Requests que coinciden con herramientas de reconocimiento ==
+127.0.0.1 - - [16/Sep/2026:19:09:24 +0000] "GET / HTTP/1.1" 200 615 "-" "curl/8.18.0"
+127.0.0.1 - - [16/Sep/2026:19:14:47 +0000] "GET / HTTP/1.1" 200 7257 "-" "curl/8.18.0"
+192.168.92.134 - - [16/Sep/2026:21:33:26 +0000] "GET / HTTP/1.1" 200 7257 "-" "curl/8.20.0"
+192.168.92.134 - - [16/Sep/2026:21:35:10 +0000] "GET /nmaplowercheck1789594510 HTTP/1.1" 404 162 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+192.168.92.134 - - [16/Sep/2026:21:35:10 +0000] "POST /sdk HTTP/1.1" 404 162 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+192.168.92.134 - - [16/Sep/2026:21:35:10 +0000] "GET /HNAP1 HTTP/1.1" 404 162 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+192.168.92.134 - - [16/Sep/2026:21:35:10 +0000] "GET /evox/about HTTP/1.1" 404 162 "-" "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+192.168.92.134 - - [16/Sep/2026:21:35:10 +0000] "GET / HTTP/1.1" 200 7257 "-" "curl/8.20.0"
+192.168.92.134 - - [16/Sep/2026:21:35:10 +0000] "HEAD /public-inventory.txt HTTP/1.1" 200 0 "-" "curl/8.20.0"
+192.168.92.134 - - [16/Sep/2026:22:06:13 +0000] "GET / HTTP/1.1" 200 7257 "-" "curl/8.20.0"
+192.168.92.134 - - [16/Sep/2026:22:06:13 +0000] "GET /public-inventory.txt HTTP/1.1" 200 881 "-" "curl/8.20.0"
