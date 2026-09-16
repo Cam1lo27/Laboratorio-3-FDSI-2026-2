@@ -1,5 +1,5 @@
-MuvAutomation - Inventario público de demostración (datos ficticios, uso académico)
-Generado para: FDSI Laboratorio 3
+CrowdStrike Incident Hub - Inventario público de demostración (datos ficticios, uso académico)
+Generado para: FDSI Laboratorio 3 - Automatización de incidentes de CrowdStrike Falcon
 Ambiente: LAB
 
 ASSET_ID       TYPE     STATUS   NOTES
@@ -7,4 +7,11 @@ WEB-LAB-01     Web      active   Nginx front-end estático de demostración
 API-LAB-01     API      active   Endpoint ficticio, sin datos reales
 DB-LAB-01      Database inactive Marcador de posición, no contiene datos
 
-Nota: Este archivo no contiene credenciales, correos reales ni direcciones internas reales.
+ALERT_ID       SEVERITY  TACTIC (simulada)      STATUS
+ALT-LAB-1001   Critical  Command & Control      Nueva
+ALT-LAB-1002   High      Credential Access      En triage
+ALT-LAB-1003   Medium    Discovery              Cerrada
+
+Nota: Este archivo no contiene credenciales, correos reales, tokens reales ni
+direcciones internas reales. Las alertas son ficticias y no provienen de una
+integración real con CrowdStrike Falcon.

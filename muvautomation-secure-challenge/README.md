@@ -1,8 +1,15 @@
-# MuvAutomation Secure Challenge — Lab 3 (HTTP público, Red + Blue Team)
+# CrowdStrike Incident Hub — Lab 3 (HTTP público, Red + Blue Team)
 
-Laboratorio académico autorizado (FDSI). Publica una aplicación web mínima por HTTP,
-sin autenticación, sobre una instancia Ubuntu Server, y ejecuta el ciclo completo
-**Diseñar → Construir → Atacar → Detectar → Corregir → Verificar**.
+Laboratorio académico autorizado (FDSI), Opción 1: automatización de incidentes de
+CrowdStrike Falcon. Publica un prototipo web mínimo por HTTP, sin autenticación, que
+recibe y expone alertas ficticias sobre una instancia Ubuntu Server (Nginx), y ejecuta
+el ciclo completo **Diseñar → Construir → Atacar → Detectar → Corregir → Verificar**.
+No se usan datos reales ni integración real con CrowdStrike Falcon.
+
+> Nota técnica: por consistencia con los scripts, la configuración de Nginx y las rutas
+> de despliegue (`/var/www/muvautomation`, `nginx/muvautomation*.conf`) conservan el
+> nombre interno `muvautomation` del laboratorio base; el contenido publicado (`app/`)
+> ya refleja la temática **CrowdStrike Incident Hub**.
 
 ## Equipo
 
