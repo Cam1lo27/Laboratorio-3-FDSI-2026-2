@@ -5,6 +5,8 @@
 **Fecha de ejecución:** 2026-09-16 (UTC)
 **Objetivo:** Publicar el prototipo "CrowdStrike Incident Hub" por HTTP sin autenticación, ejecutar el ciclo completo Diseñar → Construir → Atacar → Detectar → Corregir → Verificar, y dejar evidencia reproducible.
 
+> Las capturas de este documento están en [`evidence/screenshots/`](muvautomation-secure-challenge/evidence/screenshots/), seleccionadas de todas las tomadas durante la sesión (se descartaron las que solo mostraban pasos de instalación/configuración de las VMs sin valor como evidencia técnica del laboratorio).
+
 ---
 
 ## 1. Entorno técnico
@@ -24,78 +26,137 @@ ens33  192.168.92.132/24
 Timestamp UTC: 2026-09-16T19:08:08Z
 ```
 
----
+![Kali listo tras cambiar de instalador ISO a imagen VMware oficial](muvautomation-secure-challenge/evidence/screenshots/03-kali-ova-listo.png)
 
-## 2. Línea de tiempo real (Purple Team)
-
-| Hora UTC | Actor | Acción | Evidencia |
-|---|---|---|---|
-| 19:08:08 | Builder | Verificación de línea base del host | `evidence/blue/00-baseline.txt` |
-| 19:09:24 | Builder | Nginx desplegado, primera respuesta local `200 OK` | script `01-deploy-nginx.sh` |
-| 19:09:24 | Builder | Firewall (`ufw`) limitado a `192.168.92.0/24` + OpenSSH | log de despliegue |
-| 21:33:26 | Red Team | Verificación manual de acceso remoto (`curl -i $TARGET_URL/`) | consola Kali |
-| **21:35:10** | Red Team | `nmap -sV -p 80` + `curl -i /` + `curl -I /public-inventory.txt` | [`evidence/red/nmap_port80.nmap`](muvautomation-secure-challenge/evidence/red/nmap_port80.nmap), `curl_home.txt`, `curl_headers.txt` |
-| 21:35:10 | Blue Team | Sondas de Nmap (`/HNAP1`, `/sdk`, `/evox/about`, `/nmaplowercheck...`) quedan registradas como `404` en `access.log` | [`evidence/blue/detection-rule.txt`](muvautomation-secure-challenge/evidence/blue/detection-rule.txt) |
-| 21:44–21:53 | Red Team | Exploración pasiva con OWASP ZAP (Manual Explore) sobre `/` y `/public-inventory.txt` | [`reports/zap-passive/2026-09-16-ZAP-Report-.html`](muvautomation-secure-challenge/reports/zap-passive/2026-09-16-ZAP-Report-.html) |
-| **22:06:13** | Blue Team + Red Team | Captura coordinada de 60s (`tcpdump`) mientras Red Team repite `curl` a `/` y `/public-inventory.txt` | [`evidence/blue/lab3-http.pcap`](muvautomation-secure-challenge/evidence/blue/lab3-http.pcap) — 22 paquetes capturados |
-| 22:15 | Blue Team | Revisión de `access.log`/`error.log`/`journalctl` y regla de detección (5+ 404 en 5 min) | [`evidence/blue/telemetry.txt`](muvautomation-secure-challenge/evidence/blue/telemetry.txt) |
-| 22:20 | Blue Team | Aplicación del hardening (`server_tokens off`, headers de seguridad, bloqueo de rutas ocultas) | `nginx/muvautomation-hardened.conf` |
-| **22:24:46 – 22:24:52** | Red Team | Retest: `nmap -sV`, `curl -I /`, `curl -i /.git/config` | [`evidence/retest/nmap_port80.nmap`](muvautomation-secure-challenge/evidence/retest/nmap_port80.nmap), [`headers_after.txt`](muvautomation-secure-challenge/evidence/retest/headers_after.txt), [`hidden_path.txt`](muvautomation-secure-challenge/evidence/retest/hidden_path.txt) |
+*El instalador ISO de Kali falló repetidamente por corrupción de paquetes leídos desde el medio virtual (`Hashes of expected file` no coincidían). Se resolvió usando la imagen VMware pre-armada oficial de Kali, evitando reinstalar desde cero.*
 
 ---
 
-## 3. Comparación antes / después del hardening
+## 2. Fase A — Construcción y publicación
+
+```bash
+bash scripts/00-verify-host.sh
+bash scripts/01-deploy-nginx.sh
+```
+
+![Primer intento de despliegue mostrando la página por defecto de Nginx en vez del sitio, y estado del firewall ufw](muvautomation-secure-challenge/evidence/screenshots/01-baseline-y-firewall.png)
+
+*Al primer `curl` local apareció la página por defecto "Welcome to nginx!" en vez del sitio — el virtual host no había tomado efecto con `reload`. La misma captura confirma el firewall (`ufw`) activo y limitado a `192.168.92.0/24` + OpenSSH, tal como pide el Paso 5 de la guía.*
+
+![Sitio CrowdStrike Incident Hub respondiendo correctamente tras systemctl restart](muvautomation-secure-challenge/evidence/screenshots/02-sitio-desplegado-fix.png)
+
+*Diagnóstico: la configuración (`/etc/nginx/sites-available/muvautomation`) y los archivos publicados en `/var/www/muvautomation/` eran correctos; el problema era que `systemctl reload nginx` no aplicaba el cambio de virtual host. Se solucionó con `systemctl restart nginx`, y el sitio quedó sirviendo el HTML real (`200 OK`, `Content-Length: 7257`).*
+
+---
+
+## 3. Fase C — Reconocimiento y exploración pasiva (Red Team)
+
+```bash
+bash scripts/02-red-recon.sh
+```
+Resultado: `evidence/red/nmap_port80.nmap` (puerto 80 abierto, `nginx 1.28.3 (Ubuntu)` visible en el banner), `curl_home.txt`, `curl_headers.txt`.
+
+![Sitio CrowdStrike Incident Hub cargado dentro del navegador proxy de OWASP ZAP (Manual Explore)](muvautomation-secure-challenge/evidence/screenshots/04-zap-manual-explore-sitio.png)
+
+*Exploración manual (`Manual Explore`, sin Active Scan) del sitio y de `/public-inventory.txt`, navegando a través del proxy de ZAP para que quede registrado en `History`/`Alerts` de forma pasiva.*
+
+![Reporte HTML de ZAP: resumen de alertas por nivel de riesgo e insights](muvautomation-secure-challenge/evidence/screenshots/05-zap-reporte-resumen-alertas.png)
+
+*Resultado del reporte pasivo: 0 alertas Altas, 2 Medias, 2 Bajas — coherente con la ausencia de headers de seguridad antes del hardening. Insights: 100% de respuestas `2xx`, 2 endpoints (`text/html` y `text/plain`), 100% método `GET`. Reporte completo en [`reports/zap-passive/2026-09-16-ZAP-Report-.html`](muvautomation-secure-challenge/reports/zap-passive/2026-09-16-ZAP-Report-.html).*
+
+---
+
+## 4. Captura de tráfico y evidencia de Information Disclosure (H1 — STRIDE)
+
+```bash
+# Blue Team, en Ubuntu:
+bash scripts/03a-blue-capture.sh
+# Red Team, en Kali, durante los 60s:
+bash scripts/03b-red-fetch.sh
+```
+
+![Terminal de Ubuntu mostrando dos intentos fallidos de captura (0 paquetes, luego permiso denegado) y el tercer intento exitoso con 22 paquetes capturados](muvautomation-secure-challenge/evidence/screenshots/06-captura-trafico-tcpdump.png)
+
+*Primer intento: 0 paquetes (Red Team no llegó a tiempo a los 60s de ventana). Segundo intento: `Permission denied` por un proceso `tcpdump` colgado del intento anterior sobre `/tmp/lab3-http.pcap`. Se resolvió con `sudo pkill tcpdump && sudo rm -f /tmp/lab3-http.pcap` y se repitió la captura: **22 paquetes capturados** correctamente.*
+
+El PCAP se trajo a Kali con `scp` y se abrió en Wireshark:
+
+![Wireshark con filtro http mostrando las 4 peticiones/respuestas relevantes del PCAP](muvautomation-secure-challenge/evidence/screenshots/07-wireshark-filtro-http.png)
+
+*Filtro `http` sobre `evidence/blue/lab3-http.pcap` (22 paquetes totales, 4 mostrados): `GET /`, `200 OK (text/html)`, `GET /public-inventory.txt`, `200 OK (text/plain)`.*
+
+![Wireshark Follow HTTP Stream mostrando el contenido completo en texto plano, incluidas las alertas ficticias](muvautomation-secure-challenge/evidence/screenshots/08-wireshark-http-stream-texto-plano.png)
+
+*Al aplicar **Follow → HTTP Stream** sobre la petición a `/public-inventory.txt`, se observa el contenido completo en texto plano: el `User-Agent: curl/8.20.0`, el `Server: nginx/1.28.3 (Ubuntu)`, y el cuerpo completo del inventario con las alertas ficticias (`ALT-LAB-1001 Critical Command & Control`, etc.). Esto demuestra de forma directa que, sin TLS, cualquiera en la ruta de red puede leer el contenido completo sin explotar ninguna vulnerabilidad de la aplicación — la evidencia central de H1.*
+
+---
+
+## 5. Fase D — Detección y correlación (Blue Team)
+
+```bash
+bash scripts/04-blue-detect.sh
+```
+
+![access.log completo mostrando las peticiones de línea base, Nmap, curl y ZAP correlacionadas por timestamp](muvautomation-secure-challenge/evidence/screenshots/09-deteccion-access-log.png)
+
+*Las sondas de detección de servicio de Nmap (`-sV`) sí generan peticiones HTTP reales y quedan registradas: `/HNAP1`, `/sdk`, `/evox/about`, `/nmaplowercheck...`, todas con `User-Agent: Mozilla/5.0 (compatible; Nmap Scripting Engine...)` y todas `404`. También se ve la navegación real de Firefox durante la sesión de ZAP.*
+
+![Regla de detección: IPs con 5+ respuestas 404, y requests que coinciden con herramientas de reconocimiento](muvautomation-secure-challenge/evidence/screenshots/10-deteccion-regla-404.png)
+
+*`journalctl -u nginx` no mostró ninguna entrada ("No entries") — esta instalación de Nginx no reenvía logs al journal de systemd, solo escribe en `access.log`/`error.log`. La regla de "5+ respuestas 404 en 5 minutos" identificó correctamente las sondas de Nmap como actividad de reconocimiento.*
+
+---
+
+## 6. Fase E/F — Corrección y verificación (antes/después)
+
+```bash
+bash scripts/05-harden-nginx.sh   # Ubuntu
+bash scripts/06-retest.sh         # Kali
+```
+
+![Primer intento de verificación post-hardening mostrando que los headers nuevos aún no aparecían](muvautomation-secure-challenge/evidence/screenshots/11-hardening-antes-bug-reload.png)
+
+*Igual que en el despliegue inicial, `systemctl reload nginx` no aplicó la nueva configuración con hardening (headers ausentes, `Server: nginx/1.28.3 (Ubuntu)` sin ocultar). Mismo patrón de bug, misma causa probable.*
+
+![Verificación tras systemctl restart: Server solo dice "nginx" y aparecen los 3 headers de seguridad](muvautomation-secure-challenge/evidence/screenshots/12-hardening-despues-headers-ok.png)
+
+*Con `systemctl restart nginx`, la corrección sí se aplicó: `Server: nginx` (sin versión), `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`.*
+
+![Retest desde Kali: /.git/config responde 403 Forbidden con los headers de seguridad presentes](muvautomation-secure-challenge/evidence/screenshots/13-retest-git-config-403.png)
+
+*Confirmación final desde Red Team: la ruta oculta `/.git/config`, que antes del hardening no había sido probada, ahora responde `403 Forbidden` en vez de `200`.*
 
 | Aspecto | Antes (`evidence/red/`) | Después (`evidence/retest/`) |
 |---|---|---|
 | Banner de servidor (Nmap) | `nginx 1.28.3 (Ubuntu)` | `nginx` (sin versión) |
 | Header `Server` (curl) | `nginx/1.28.3 (Ubuntu)` | `nginx` |
-| Headers de seguridad | Ausentes | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` |
+| Headers de seguridad | Ausentes | `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` |
 | Ruta oculta `/.git/config` | No probada aún | `403 Forbidden` |
-| Confidencialidad del tráfico HTTP | Sin cifrar (confirmado por PCAP) | **Sin cambio** — HTTP sigue sin TLS, queda abierto para Lab 4 |
+| Confidencialidad del tráfico HTTP | Sin cifrar (confirmado por PCAP) | **Sin cambio** — sigue abierto para Lab 4 |
 
 Esto confirma exactamente la regla pedagógica de la guía: el hardening reduce la **exposición de metadatos** (Information Disclosure), pero no resuelve el riesgo de fondo de **confidencialidad/integridad** de HTTP sin cifrar.
 
 ---
 
-## 4. Evidencia de Information Disclosure (H1 — STRIDE)
+## 7. Línea de tiempo completa (Purple Team)
 
-Con el PCAP (`evidence/blue/lab3-http.pcap`) abierto en Wireshark, filtro `http`, se identificaron 4 paquetes de interés: `GET /`, `200 OK (text/html)`, `GET /public-inventory.txt`, `200 OK (text/plain)`. Al aplicar **Follow → HTTP Stream** sobre la petición al inventario, se observó en texto plano:
-
-```
-GET /public-inventory.txt HTTP/1.1
-Host: 192.168.92.132
-User-Agent: curl/8.20.0
-Accept: */*
-
-HTTP/1.1 200 OK
-Server: nginx/1.28.3 (Ubuntu)
-Content-Type: text/plain; charset=utf-8
-Content-Length: 881
-
-CrowdStrike Incident Hub - Inventario público de demostración (datos ficticios, uso académico)
-...
-ALERT_ID       SEVERITY  TACTIC (simulada)      STATUS
-ALT-LAB-1001   Critical  Command & Control      Nueva
-ALT-LAB-1002   High      Credential Access      En triage
-ALT-LAB-1003   Medium    Discovery              Cerrada
-```
-
-Esto demuestra de forma directa que, sin TLS, cualquiera en la ruta de red puede leer el contenido completo — incluidas las "alertas" ficticias del prototipo — sin necesidad de explotar ninguna vulnerabilidad de la aplicación.
+| Hora UTC | Actor | Acción | Evidencia |
+|---|---|---|---|
+| 19:08:08 | Builder | Verificación de línea base del host | `evidence/blue/00-baseline.txt` |
+| 19:09:24 | Builder | Nginx desplegado (tras corregir el bug de `reload`) | Sección 2 |
+| 19:09:24 | Builder | Firewall (`ufw`) limitado a `192.168.92.0/24` + OpenSSH | Sección 2 |
+| 21:33:26 | Red Team | Verificación manual de acceso remoto | consola Kali |
+| **21:35:10** | Red Team | `nmap -sV -p 80` + `curl -i /` + `curl -I /public-inventory.txt` | Sección 3 |
+| 21:35:10 | Blue Team | Sondas de Nmap quedan registradas como `404` en `access.log` | Sección 5 |
+| 21:44–21:53 | Red Team | Exploración pasiva con OWASP ZAP | Sección 3 |
+| **22:06:13** | Blue Team + Red Team | Captura coordinada de 60s (`tcpdump`) | Sección 4 |
+| 22:15 | Blue Team | Revisión de logs y regla de detección | Sección 5 |
+| 22:20 | Blue Team | Aplicación del hardening | Sección 6 |
+| **22:24:46 – 22:24:52** | Red Team | Retest completo | Sección 6 |
 
 ---
 
-## 5. Resultado del análisis pasivo con OWASP ZAP
-
-Reporte completo: [`reports/zap-passive/2026-09-16-ZAP-Report-.html`](muvautomation-secure-challenge/reports/zap-passive/2026-09-16-ZAP-Report-.html)
-
-- **2 alertas de riesgo Medio, 2 de riesgo Bajo, 0 Altas** (exploración pasiva, sin Active Scan).
-- Coinciden con lo esperado antes del hardening: ausencia de headers de seguridad.
-- Insights: 100% de respuestas `2xx`, 2 endpoints totales (`text/html` y `text/plain`), 100% método `GET`.
-
----
-
-## 6. Preguntas de análisis (Sección 12 de la guía)
+## 8. Preguntas de análisis (Sección 12 de la guía)
 
 **¿Qué pudo observar el Red Team sin explotar ninguna vulnerabilidad?**
 El banner completo de versión de Nginx (`1.28.3 (Ubuntu)`), el HTML completo del portal y del inventario de alertas ficticias en texto plano, todos los headers de respuesta, y la ausencia de controles básicos de seguridad — todo mediante reconocimiento pasivo (Nmap, curl, ZAP en modo pasivo, lectura del PCAP).
@@ -113,11 +174,11 @@ Un solo request de `curl` no es sospechoso por sí mismo. Blue Team necesitaría
 **Information Disclosure / Tampering** derivados de la ausencia de TLS (H1 y H4 de la tabla STRIDE, R1 y R6 del `risk-register.md`). Es el único riesgo que quedó explícitamente "pendiente para Lab 4" en el registro de riesgos, y es exactamente lo que introduce el siguiente laboratorio (HTTPS + identidad + roles).
 
 **¿Qué conclusión propuesta por la IA no pudo comprobarse directamente?**
-Durante la corrección del hardening, la hipótesis inicial de que `systemctl reload nginx` no aplicaba los cambios (a diferencia de `restart`) nunca se comprobó a fondo — se resolvió empíricamente usando `restart` en su lugar, pero la causa raíz exacta (por qué `reload` no bastaba en este entorno) quedó sin diagnosticar. Es un buen ejemplo de una "solución que funcionó" sin una explicación técnica completamente verificada.
+Durante la corrección del hardening (y también durante el despliegue inicial), la hipótesis de que `systemctl reload nginx` no aplicaba los cambios de virtual host (a diferencia de `restart`) nunca se comprobó a fondo — se resolvió empíricamente usando `restart` en su lugar dos veces, pero la causa raíz exacta (por qué `reload` no bastaba en este entorno) quedó sin diagnosticar. Es un buen ejemplo de una "solución que funcionó" sin una explicación técnica completamente verificada.
 
 ---
 
-## 7. Riesgos — estado final
+## 9. Riesgos — estado final
 
 Ver detalle completo en [`risk-register.md`](muvautomation-secure-challenge/risk-register.md). Resumen:
 
@@ -132,7 +193,7 @@ Ver detalle completo en [`risk-register.md`](muvautomation-secure-challenge/risk
 
 ---
 
-## 8. Reproducción
+## 10. Reproducción
 
 Ver [`README.md`](muvautomation-secure-challenge/README.md) para variables de entorno y el orden exacto de scripts (`scripts/00-verify-host.sh` a `scripts/06-retest.sh`).
 
