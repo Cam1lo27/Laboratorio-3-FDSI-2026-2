@@ -22,7 +22,7 @@ No se usan datos reales ni integración real con CrowdStrike Falcon.
 Kali Linux (Red Team) --HTTP (tcp/80)--> Red del laboratorio --> Nginx --> /var/www/muvautomation
 ```
 
-![DFD Lab 3: Kali/Red Team, red del laboratorio, Nginx, archivos del sitio y Blue Team, con dos límites de confianza](diagrams/dfd-lab3.png)
+![DFD Lab 3: Kali/Red Team, red del laboratorio, Nginx, archivos del sitio y Blue Team, con dos límites de confianza](diagrams/dfd-lab3.svg)
 
 DFD con los dos límites de confianza (red→servidor y aplicación→sistema de archivos) y el flujo de
 monitoreo hacia Blue Team. Ver [diagrams/stride-table.md](diagrams/stride-table.md) para las
@@ -75,7 +75,7 @@ publicado sea completamente ficticio (punto de control de la Fase A).
 muvautomation-secure-challenge/
 ├── app/                    # Sitio estático publicado (index.html, public-inventory.txt)
 ├── nginx/                  # Config inicial y config con hardening (Paso 15)
-├── diagrams/                # DFD (dfd-lab3.png) + tabla STRIDE
+├── diagrams/                # DFD (dfd-lab3.svg) + tabla STRIDE
 ├── scripts/                 # Un script por paso, en orden de ejecución
 ├── evidence/red/            # Salidas de Nmap/curl/ZAP de la ronda inicial
 ├── evidence/blue/            # Logs, PCAP y regla de detección
